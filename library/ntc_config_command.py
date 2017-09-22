@@ -63,6 +63,13 @@ options:
             - SSH port to use to connect to the target device
         required: false
         default: 22 for SSH. 23 for Telnet
+    global_delay_factor:
+        description:
+            - Sets delay between operations.
+        required: false
+        default: 1
+        choices: []
+        aliases: []
     username:
         description:
             - Username used to login to the target device
@@ -158,6 +165,7 @@ def main():
             commands_file=dict(required=False),
             host=dict(required=False),
             port=dict(required=False),
+            global_delay_factor=dict(default=1, required=False),
             provider=dict(type='dict', required=False),
             username=dict(required=False, type='str'),
             password=dict(required=False, type='str', no_log=True),
@@ -174,7 +182,7 @@ def main():
     for param in no_log:
         if provider.get(param):
             module.no_log_values.update(return_values(provider[param]))
-    
+
     # allow local params to override provider
     for param, pvalue in provider.items():
         if module.params.get(param) != False:
@@ -191,6 +199,7 @@ def main():
     secret = module.params['secret']
     use_keys = module.params['use_keys']
     key_file = module.params['key_file']
+    global_delay_factor = int(module.params['global_delay_factor'])
 
 
     argument_check = { 'host': host, 'username': username, 'platform': platform, 'password': password }
@@ -224,7 +233,8 @@ def main():
                                 password=password,
                                 secret=secret,
                                 use_keys=use_keys,
-                                key_file=key_file
+                                key_file=key_file,
+                                global_delay_factor=global_delay_factor
                                 )
 
         if secret:
